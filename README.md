@@ -34,7 +34,7 @@ The project is very simple, follow the steps to run it:
 2. Run the script (last step)
 
    ```
-   python3 main.py
+   python3 server.py
    ```
 
    Done, congrats, lets bruteforce the world.
@@ -46,3 +46,7 @@ APi used is https://blockstream.info, in future maybe it become paid or rate lim
 ## Additionals
 
 The private key commented is compromised and have 0 funds but 1000 transaction. It can be used to test if api is working at that instant or not.
+
+## Screenshots
+
+![1729762589890](image/README/1729762589890.png)

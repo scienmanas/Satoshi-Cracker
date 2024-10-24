@@ -115,55 +115,57 @@ def display_log(address_type, compressed, balance, total_transactions):
     else:
         print(Fore.GREEN + f"[{address_type} - {'Compressed' if compressed else 'Uncompressed'}] Found: {balance} satoshis and {total_transactions} transaction(s).")
 
+
 # Main loop
-while True:
-    # Generate a random private key for testing
-    # private_key = bytes.fromhex("20536951acc1f347f922e64a62aec1ce3b73f038a99cb9d56f3d313f2f8caac5")
-    private_key = generate_private_key()
-    public_key = generate_public_key(private_key=private_key, compressed=False)
-    public_key_compressed = generate_public_key(private_key=private_key, compressed=True)
+def start_script() :
+    while True:
+        # Generate a random private key for testing
+        # private_key = bytes.fromhex("20536951acc1f347f922e64a62aec1ce3b73f038a99cb9d56f3d313f2f8caac5")
+        private_key = generate_private_key()
+        public_key = generate_public_key(private_key=private_key, compressed=False)
+        public_key_compressed = generate_public_key(private_key=private_key, compressed=True)
 
-    # Generate addresses
-    legacy_address = generate_legacy_address(public_key)
-    legacy_address_compressed = generate_legacy_address(public_key_compressed)
-    segwit_address = generate_segwit_address(public_key)
-    segwit_address_compressed = generate_segwit_address(public_key_compressed)
+        # Generate addresses
+        legacy_address = generate_legacy_address(public_key)
+        legacy_address_compressed = generate_legacy_address(public_key_compressed)
+        segwit_address = generate_segwit_address(public_key)
+        segwit_address_compressed = generate_segwit_address(public_key_compressed)
 
-    # Fetch and display address information
-    legacy_info = get_address_info(legacy_address)
-    legacy_compressed_info = get_address_info(legacy_address_compressed)
-    segwit_info = get_address_info(segwit_address)
-    segwit_compressed_info = get_address_info(segwit_address_compressed)
+        # Fetch and display address information
+        legacy_info = get_address_info(legacy_address)
+        legacy_compressed_info = get_address_info(legacy_address_compressed)
+        segwit_info = get_address_info(segwit_address)
+        segwit_compressed_info = get_address_info(segwit_address_compressed)
 
-    print("*******************************************************")
+        print("*******************************************************")
 
-    # Check for balance or transactions and save to CSV if any are found
-    if legacy_info.get("total_transactions") > 0 or legacy_info.get("balance") > 0:
-        print(Fore.GREEN + "[Legacy - Uncompressed] Found something!")
-        save_to_csv(private_key, public_key, legacy_address , "Legacy", "Uncompressed", legacy_info["balance"], legacy_info["total_transactions"])
+        # Check for balance or transactions and save to CSV if any are found
+        if legacy_info.get("total_transactions") > 0 or legacy_info.get("balance") > 0:
+            print(Fore.GREEN + "[Legacy - Uncompressed] Found something!")
+            save_to_csv(private_key, public_key, legacy_address , "Legacy", "Uncompressed", legacy_info["balance"], legacy_info["total_transactions"])
 
 
-    if legacy_compressed_info.get("total_transactions") > 0 or legacy_compressed_info.get("balance") > 0:
-        print(Fore.GREEN + "[Legacy - Compressed] Found something!")
-        save_to_csv(private_key, public_key_compressed,legacy_address_compressed ,"Legacy", "Compressed", legacy_compressed_info["balance"], legacy_compressed_info["total_transactions"])
+        if legacy_compressed_info.get("total_transactions") > 0 or legacy_compressed_info.get("balance") > 0:
+            print(Fore.GREEN + "[Legacy - Compressed] Found something!")
+            save_to_csv(private_key, public_key_compressed,legacy_address_compressed ,"Legacy", "Compressed", legacy_compressed_info["balance"], legacy_compressed_info["total_transactions"])
 
-    if segwit_info.get("total_transactions") > 0 or segwit_info.get("balance") > 0:
-        print(Fore.GREEN + "[SegWit - Uncompressed] Found something!")
-        save_to_csv(private_key, public_key,segwit_address ,"SegWit", "Uncompressed", segwit_info["balance"], segwit_info["total_transactions"])
+        if segwit_info.get("total_transactions") > 0 or segwit_info.get("balance") > 0:
+            print(Fore.GREEN + "[SegWit - Uncompressed] Found something!")
+            save_to_csv(private_key, public_key,segwit_address ,"SegWit", "Uncompressed", segwit_info["balance"], segwit_info["total_transactions"])
 
-    if segwit_compressed_info.get("total_transactions") > 0 or segwit_compressed_info.get("balance") > 0:
-        print(Fore.GREEN + "[SegWit - Compressed] Found something!")
-        save_to_csv(private_key, public_key_compressed, segwit_address_compressed, "SegWit", "Compressed", segwit_compressed_info["balance"], segwit_compressed_info["total_transactions"])
+        if segwit_compressed_info.get("total_transactions") > 0 or segwit_compressed_info.get("balance") > 0:
+            print(Fore.GREEN + "[SegWit - Compressed] Found something!")
+            save_to_csv(private_key, public_key_compressed, segwit_address_compressed, "SegWit", "Compressed", segwit_compressed_info["balance"], segwit_compressed_info["total_transactions"])
 
-    # Display logs for each address
-    display_log("Legacy", False, legacy_info.get("balance"), legacy_info.get("total_transactions"))
-    display_log("Legacy", True, legacy_compressed_info.get("balance"), legacy_compressed_info.get("total_transactions"))
-    display_log("SegWit", False, segwit_info.get("balance"), segwit_info.get("total_transactions"))
-    display_log("SegWit", True, segwit_compressed_info.get("balance"), segwit_compressed_info.get("total_transactions"))
+        # Display logs for each address
+        display_log("Legacy", False, legacy_info.get("balance"), legacy_info.get("total_transactions"))
+        display_log("Legacy", True, legacy_compressed_info.get("balance"), legacy_compressed_info.get("total_transactions"))
+        display_log("SegWit", False, segwit_info.get("balance"), segwit_info.get("total_transactions"))
+        display_log("SegWit", True, segwit_compressed_info.get("balance"), segwit_compressed_info.get("total_transactions"))
 
-    current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    time_str = Fore.CYAN + f"Time: {current_time}"
-    print("\nTime: ", time_str)
-    print(Fore.YELLOW + "Scanning completed for one key pair. Starting next...")
-    print("*******************************************************\n")
-    # time.sleep(20)  # Pause for 5 seconds before scanning the next pair
+        current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        time_str = Fore.CYAN + f"Time: {current_time}"
+        print("\nTime: ", time_str)
+        print(Fore.YELLOW + "Scanning completed for one key pair. Starting next...")
+        print("*******************************************************\n")
+        # time.sleep(20)  # Pause for 5 seconds before scanning the next pair
