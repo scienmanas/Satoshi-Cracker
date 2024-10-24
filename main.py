@@ -68,17 +68,20 @@ def bech32_encode(hrp, witver, witprog):
 # Function to get balance and transaction details from Blockstream API
 def get_address_info(address):
     url = f'https://blockstream.info/api/address/{address}'
-    response = requests.get(url)
-    if response.status_code == 200:
+    try:
+        response = requests.get(url, timeout=20)  # Set a timeout for the request
+        response.raise_for_status()  # Raises an HTTPError for bad responses
         data = response.json()
-        print("Address: ",data["address"])
+        print("Address: ", data["address"])
         return {
+            "success": True, 
             "total_transactions": data["chain_stats"]["tx_count"],
             "balance": data["chain_stats"]["funded_txo_sum"] - data["chain_stats"]["spent_txo_sum"]
         }
-    else:
-        return {"error": "Unable to fetch data"}
-
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching address info: {e}")
+        return {"success": False}
+        
 # Save key and address info to CSV
 def save_to_csv(private_key, public_key, address, address_type, compressed, balance, total_transactions):
     # Save in csv
@@ -140,22 +143,25 @@ def start_script() :
         print("*******************************************************")
 
         # Check for balance or transactions and save to CSV if any are found
-        if legacy_info.get("total_transactions") > 0 or legacy_info.get("balance") > 0:
-            print(Fore.GREEN + "[Legacy - Uncompressed] Found something!")
-            save_to_csv(private_key, public_key, legacy_address , "Legacy", "Uncompressed", legacy_info["balance"], legacy_info["total_transactions"])
+        if legacy_info.get("success") == True:
+            if legacy_info.get("total_transactions") > 0 or legacy_info.get("balance") > 0:
+                print(Fore.GREEN + "[Legacy - Uncompressed] Found something!")
+                save_to_csv(private_key, public_key, legacy_address , "Legacy", "Uncompressed", legacy_info["balance"], legacy_info["total_transactions"])
 
+        if legacy_compressed_info.get("success") == True:
+            if legacy_compressed_info.get("total_transactions") > 0 or legacy_compressed_info.get("balance") > 0:
+                print(Fore.GREEN + "[Legacy - Compressed] Found something!")
+                save_to_csv(private_key, public_key_compressed,legacy_address_compressed ,"Legacy", "Compressed", legacy_compressed_info["balance"], legacy_compressed_info["total_transactions"])
 
-        if legacy_compressed_info.get("total_transactions") > 0 or legacy_compressed_info.get("balance") > 0:
-            print(Fore.GREEN + "[Legacy - Compressed] Found something!")
-            save_to_csv(private_key, public_key_compressed,legacy_address_compressed ,"Legacy", "Compressed", legacy_compressed_info["balance"], legacy_compressed_info["total_transactions"])
+        if segwit_info.get("success") == True:
+            if segwit_info.get("total_transactions") > 0 or segwit_info.get("balance") > 0:
+                print(Fore.GREEN + "[SegWit - Uncompressed] Found something!")
+                save_to_csv(private_key, public_key,segwit_address ,"SegWit", "Uncompressed", segwit_info["balance"], segwit_info["total_transactions"])
 
-        if segwit_info.get("total_transactions") > 0 or segwit_info.get("balance") > 0:
-            print(Fore.GREEN + "[SegWit - Uncompressed] Found something!")
-            save_to_csv(private_key, public_key,segwit_address ,"SegWit", "Uncompressed", segwit_info["balance"], segwit_info["total_transactions"])
-
-        if segwit_compressed_info.get("total_transactions") > 0 or segwit_compressed_info.get("balance") > 0:
-            print(Fore.GREEN + "[SegWit - Compressed] Found something!")
-            save_to_csv(private_key, public_key_compressed, segwit_address_compressed, "SegWit", "Compressed", segwit_compressed_info["balance"], segwit_compressed_info["total_transactions"])
+        if segwit_compressed_info.get("success") == True:
+            if segwit_compressed_info.get("total_transactions") > 0 or segwit_compressed_info.get("balance") > 0:
+                print(Fore.GREEN + "[SegWit - Compressed] Found something!")
+                save_to_csv(private_key, public_key_compressed, segwit_address_compressed, "SegWit", "Compressed", segwit_compressed_info["balance"], segwit_compressed_info["total_transactions"])
 
         # Display logs for each address
         display_log("Legacy", False, legacy_info.get("balance"), legacy_info.get("total_transactions"))
