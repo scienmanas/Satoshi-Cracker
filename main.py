@@ -9,7 +9,7 @@ from colorama import Fore, init
 from datetime import datetime
 from smtplib import SMTP
 from dotenv import load_dotenv
-# import time
+import time
 from email.message import EmailMessage
 
 load_dotenv()  # take environment variables from .env.
@@ -67,6 +67,7 @@ def bech32_encode(hrp, witver, witprog):
 
 # Function to get balance and transaction details from Blockstream API
 def get_address_info(address):
+    time.sleep(5)  # Don't hit too frequently
     url = f'https://blockstream.info/api/address/{address}'
     try:
         response = requests.get(url, timeout=20)  # Set a timeout for the request
